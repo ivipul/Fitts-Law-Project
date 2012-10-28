@@ -1,0 +1,42 @@
+var bubbleProperties = [
+    {
+        "size": "22",
+        "x": "200",
+        "y": "50",
+        "distance": "125",
+        "time": "",
+        "status": ""
+    },
+    {
+        "size": "45",
+        "x": "200",
+        "y": "300",
+        "distance": "250",
+        "time": "",
+        "status": ""
+    },
+    {
+        "size": "45",
+        "x": "450",
+        "y": "300",
+        "distance": "250",
+        "time": "",
+        "status": ""
+    },
+    {
+        "size": "22",
+        "x": "450",
+        "y": "175",
+        "distance": "125",
+        "time": "",
+        "status": ""
+    },
+    {
+        "size": "45",
+        "x": "450",
+        "y": "425",
+        "distance": "225",
+        "time": "",
+        "status": ""
+    }
+]

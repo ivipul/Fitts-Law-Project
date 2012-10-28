@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+      #myCanvas {
+        border: 1px solid #9C9898;
+		margin-left: 100px;
+      }
+    </style>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jcanvas.min.js"></script>
+    <script type="text/javascript" src="js/bubbleProperties.json"></script>
+
+    <script>
+    $(document).ready(function() {
+		// Cache elements
+		var $canvas = $('canvas');
+		var currentBubble = 0;
+		$canvas.drawRect({
+		  layer:true,
+		  fillStyle: "#000",
+		  x: 75, y: 50,
+		  width: 875,
+		  height: 500,
+		  fromCenter: false
+		});	
+
+		$canvas.addLayer({
+			name: 'startPoint',
+			method: 'drawArc',
+			fillStyle: "#f00",
+			x: 75, y: 50,
+			radius: 45,
+			// Event bindings
+			mouseup: function(params) {
+				$canvas.setLayer("startPoint", {
+				fillStyle: "#0f0",
+				radius:bubbleProperties[currentBubble].size,
+				x:bubbleProperties[currentBubble].x,
+				y:bubbleProperties[currentBubble].y
+			}).drawLayers();
+			currentBubble++;
+		  }
+		}).drawLayers();	
+});
+    </script>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="1024" height="600">
+	</canvas>
+  </body>
+</html>
