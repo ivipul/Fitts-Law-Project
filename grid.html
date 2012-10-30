@@ -8,18 +8,81 @@
       }
       #myCanvas {
         border: 1px solid #9C9898;
-		margin-left: 100px;
       }
+	  #canvasHolder{
+	  	margin-left: auto;
+		margin-right: auto;
+		width:1024px;
+	  }
     </style>
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/jcanvas.min.js"></script>
-    <script type="text/javascript" src="js/bubbleProperties.json"></script>
 
-    <script>
+ <script>
     $(document).ready(function() {
+	$("#clickData").hide();
+	//create gridCoordinates array of all possible bubble coordinates
+	var gridCoordinates = new Array();
+
+	// initialize the gridCoordinates array
+	var xStart;
+	var yStart = 50;
+	var xStart = 75;
+	for(var row=0;row<=7;row++){
+		gridCoordinates[row] = new Array();
+		yStart = 50;
+		for(var col=0;col<=7;col++){
+			gridCoordinates[row][col] = {"xval":xStart,"yval":yStart};
+			yStart = yStart + 125;
+		}
+		xStart = xStart + 125;
+	}
+
+	// intialize the array for bubbles to be displayed on screen
+	var bubbles = new Array();
+	var bubbleIndex = 0;
+
+	var x,y;
+	x=y=0;
+
+	// directions array for dist & size of consecutive bubbles
+	var directions = new Array();
+	directions[0] = {dist:"1",size:"90"};
+	directions[1] = {dist:"1",size:"180"};
+	directions[2] = {dist:"2",size:"90"};
+	directions[3] = {dist:"2",size:"180"};
+
+	// populate the bubbles array through random selection from all 4 variants of directions
+	for(var i=0; i<60;i++){
+
+		for(var j=0;j<directions.length;j++){
+			var d = parseInt(directions[j].dist);
+			var options = new Array();
+			if(x+d > -1 && x+d <= 7){
+				options.push({"xcord":(x+d),"ycord":y});
+			}if(x-d > -1 && x-d <= 7){
+				options.push({"xcord":(x-d),"ycord":y});
+			}if(y+d > -1 && y+d <= 4){
+				options.push({"xcord":x,"ycord":(y+d)});
+			}if(y-d > -1 && y-d <= 4){
+				options.push({"xcord":x,"ycord":(y-d)});
+			}
+			var random = Math.floor(Math.random() * options.length);
+			var selected = options[random];
+			var point = gridCoordinates[selected.xcord][selected.ycord];
+			x = selected.xcord;
+			y = selected.ycord;
+			bubbles[bubbleIndex] = {"xcord":point.xval, "ycord":point.yval, "size":directions[j].size, "distance":directions[j].dist*210, "flag":"", "timestamp":""};
+			bubbleIndex++;
+		}
+	}
 		// Cache elements
 		var $canvas = $('canvas');
 		var currentBubble = 0;
+		var clickStatus = null;
+		var allClicksData = "";
+		var timeStamp;
+		
 		$canvas.drawRect({
 		  layer:true,
 		  fillStyle: "#000",
@@ -29,6 +92,14 @@
 		  fromCenter: false
 		});	
 
+		$canvas.mouseup(function() {
+			if (clickStatus == false){
+				allClicksData += bubbles[currentBubble].size+","+bubbles[currentBubble].distance+","+((new Date().getTime())-timeStamp)+",failure\n";
+				clickStatus = true;
+				currentBubble++;
+			}
+		});
+		
 		$canvas.addLayer({
 			name: 'startPoint',
 			method: 'drawArc',
@@ -36,21 +107,40 @@
 			x: 75, y: 50,
 			radius: 45,
 			// Event bindings
-			mouseup: function(params) {
+			click: function(params) {
+				if (currentBubble == 240){
+					alert("Thanks for performing our experiment");
+					$.ajax({
+					type: 'POST',
+					url: "processData.php",
+					data: {clickData: allClicksData},
+					dataType:"json"
+				  })
+				}
+				clickStatus = false;
+				timeStamp = new Date().getTime();
 				$canvas.setLayer("startPoint", {
 				fillStyle: "#0f0",
-				radius:bubbleProperties[currentBubble].size,
-				x:bubbleProperties[currentBubble].x,
-				y:bubbleProperties[currentBubble].y
+				radius: (parseInt(bubbles[currentBubble].size)/4),
+				x:bubbles[currentBubble].xcord,
+				y:bubbles[currentBubble].ycord		
 			}).drawLayers();
-			currentBubble++;
-		  }
+		  },
+		  	mousedown: function(params) {
+				if (clickStatus == false){
+					allClicksData += bubbles[currentBubble].size+","+bubbles[currentBubble].distance+","+((new Date().getTime())-timeStamp)+",success\n";
+					clickStatus = true;
+					currentBubble++;
+				}
+			}
 		}).drawLayers();	
 });
     </script>
   </head>
   <body>
-    <canvas id="myCanvas" width="1024" height="600">
-	</canvas>
+	<div id="canvasHolder">
+		<canvas id="myCanvas" width="1024" height="600">
+		</canvas>
+	</div>
   </body>
 </html>
